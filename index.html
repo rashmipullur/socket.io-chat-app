@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>socket.io chat</title>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="m" autocomplete="off" /><button>Send</button> 
+    </form>
+    <button id="leaveRoom">Leave Room</button>
+    <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+    <script>
+      const socket = io();
+
+      // get username and room form the user
+      const username = prompt("Enter your username:");
+      const room = prompt("Enter the room name:");
+
+      //   emit a 'join' event to the server with username  and room
+      socket.emit("join", { username, room });
+
+      //   listening for chat message
+      socket.on("chat message", (msg) => {
+        console.log("🚀 ~ file: index.html:26 ~ socket.on ~ msg:", msg)
+        const ul = document.getElementById("messages");
+        const li = document.createElement("li");
+        li.appendChild(document.createTextNode(msg));
+        ul.appendChild(li);
+      });
+
+      //   sending chat messages
+      document.getElementById("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const input = document.getElementById("m");
+        socket.emit("chat message", { username, room, message: input.value });
+        console.log("🚀 ~ file: index.html:37 ~ document.getElementById ~ input.value:", input.value)
+        input.value = "";
+      });
+
+    //   leave room button
+    document.getElementById('leaveRoom').addEventListener('click',()=>{
+        socket.emit('leaveRoom', {username, room})
+        room = prompt('Enter the new room name:')
+    })
+    </script>
+
+  </body>
+</html>
